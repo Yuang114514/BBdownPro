@@ -126,7 +126,7 @@ while ($listener.IsListening) {
     # GET /api/login/status
     if ($method -eq 'GET' -and $path -eq '/api/login/status') {
       $loggedIn = $false
-      $inProgress = ($script:loginProc -ne $null -and !$script:loginProc.HasExited)
+      $inProgress = ($null -ne $script:loginProc -and !$script:loginProc.HasExited)
       # 登录进行中时忽略旧账号的 SESSDATA，避免误判新登录已完成
       if (-not $inProgress -and (Test-Path $datafile)) { $loggedIn = ((Get-Content $datafile -Raw -ErrorAction SilentlyContinue) -match 'SESSDATA=') }
       $msg = ''
@@ -293,7 +293,7 @@ while ($listener.IsListening) {
     }
     # GET /api/files
     if ($method -eq 'GET' -and $path -eq '/api/files') {
-      $files = Get-ChildItem $workDir | ? { $_.Extension -match '\.(mp4|flv|mkv|m4a|mp3|ass|xml)$' } | Sort LastWriteTime -Desc | % { @{ name=$_.Name; size=$_.Length; mtime=$_.LastWriteTime.ToString('o') } }
+      $files = Get-ChildItem $workDir | ? { $_.Extension -match '\.(mp4|flv|mkv|m4a|mp3|ass|xml)$' } | Sort-Object LastWriteTime -Desc | % { @{ name=$_.Name; size=$_.Length; mtime=$_.LastWriteTime.ToString('o') } }
       json $ctx @($files); continue
     }
     # GET /api/file/:name
